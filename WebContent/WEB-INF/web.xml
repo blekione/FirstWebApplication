@@ -6,7 +6,7 @@
 	<display-name>MyFirstWebApp</display-name>
 	<description>MyApp</description>
 	
-	<servlet>
+	<!--<servlet>
 		<servlet-name>MyApp</servlet-name>
 		<servlet-class>com.myFirstApp.HelloWorldServlet</servlet-class>
 	</servlet>
@@ -14,7 +14,7 @@
 	<servlet-mapping>
 		<servlet-name>MyApp</servlet-name>
 		<url-pattern>/myApp.html</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping> -->
 	
 </web-app>
 	
