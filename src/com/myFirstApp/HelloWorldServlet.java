@@ -3,6 +3,7 @@ package com.myFirstApp;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpRetryException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,18 +20,19 @@ import javax.servlet.http.HttpServletResponse;
 		loadOnStartup = 1
 		)
 		
-public class HelloWorldServlet extends HttpServlet {
+public class HelloWorldServlet extends HttpServlet implements Subject {
 	private static final String DEFAULT_USER = "Guest";
-	private Person user = new Person(); 
+	private Person user = new Person();
+	private ArrayList<Observer> observers = new ArrayList<Observer>();
 	
     public HelloWorldServlet() {
         super();
+        SaveToFile saveToFile = new SaveToFile();
+		registerObserver(saveToFile);
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
-			
-		user.setName(request.getParameter("name"));
 		if (user.getName() == null) {
 			getUserInformationForm(response);
 		} else {
@@ -41,14 +43,21 @@ public class HelloWorldServlet extends HttpServlet {
 	private void displayUserInformation(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		PrintWriter writer = response.getWriter();
-		
+		updateUser(request);
+		notifyObservers();
 		writer.append("Hello ")
 		.append(user.getName()).append(". You are ")
-		.append(request.getParameter("age"))
+		.append(Integer.toString(user.getAge()))
 		.append(" years old and your user name is ")
-		.append(request.getParameter("username"))
+		.append(user.getUsername())
 		.append(".");
 		
+	}
+
+	private void updateUser(HttpServletRequest request) {
+		user.setName(request.getParameter("name"));
+		user.setAge(Integer.parseInt(request.getParameter("age")));
+		user.setUsername(request.getParameter("username"));
 	}
 
 	private void getUserInformationForm(HttpServletResponse response) throws IOException {
@@ -81,5 +90,25 @@ public class HelloWorldServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException {
 		this.doGet(request, response);
+	}
+
+	@Override
+	public void registerObserver(Observer observer) {
+		observers.add(observer);
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		int index = observers.indexOf(observer);
+		if (index >= 0)
+			observers.remove(index);
+	}
+
+	@Override
+	public void notifyObservers() {
+		for (int i =  0; i < observers.size(); i++) {
+			Observer observer = (Observer) observers.get(i);
+			observer.update(user);
+		}
 	}
 }
