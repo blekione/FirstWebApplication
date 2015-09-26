@@ -91,12 +91,14 @@ public class UserServlet extends HttpServlet {
 		 */
 		PrintWriter writer = resp.getWriter();
 		Person user = this.usersDatabase.get(Integer.parseInt(req.getParameter("userId")));
-		writer.append("Hello ")
+		writer.append("<p>Hello ")
 		.append(user.getName()).append(". You are ")
 		.append(Integer.toString(user.getAge()))
 		.append(" years old and your user name is ")
 		.append(user.getUsername())
-		.append(".");	
+		.append(".</p>");
+		
+		writer.append("<br/><a href=\"user\">Return to list of users</a>");
 	}
 
 	private void showForm(HttpServletRequest req, HttpServletResponse resp) throws IOException {
