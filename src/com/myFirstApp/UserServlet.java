@@ -67,28 +67,31 @@ public class UserServlet extends HttpServlet {
 		/** displays "home page" as list of users registered in system (from userDatabase).
 		 * If none user is existing then information about it is displayed 
 		 */
-		
+		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
 		writer.append("<h2>Testit</h2>")
 			.append("<a href=\"user?action=add\">Add User</a><br/>"); // link to add new user
 		
 		if(this.usersDatabase.size() == 0)
-			writer.append("<p><i>There is no users registered yet in system.</i></p>");
+			writer.append("<p><i>There is no users registered yet in system.</i></p>\r\n");
 		else {
+			writer.append("<ul>\r\n");
 			for (int id : this.usersDatabase.keySet()) {
 				String idString = Integer.toString(id);
 				Person user = this.usersDatabase.get(id);
-				writer.append("User #").append(idString)
+				writer.append("<li>User #").append(idString)
 					.append(": <a href=\"user?action=view&userId=").append(idString)
-					.append("\">").append(user.getName()).append("</a><br/>");
+					.append("\">").append(user.getName()).append("</a><br/></li>\r\n");
 			}
 		}
+		this.addHtmlFooter(resp);
 	}
 
 	private void viewUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		/** displays user record
 		 *  
 		 */
+		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
 		Person user = this.usersDatabase.get(Integer.parseInt(req.getParameter("userId")));
 		writer.append("<p>Hello ")
@@ -96,9 +99,10 @@ public class UserServlet extends HttpServlet {
 		.append(Integer.toString(user.getAge()))
 		.append(" years old and your user name is ")
 		.append(user.getUsername())
-		.append(".</p>");
+		.append(".</p>	");
 		
 		writer.append("<br/><a href=\"user\">Return to list of users</a>");
+		this.addHtmlFooter(resp);
 	}
 
 	private void showForm(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -107,6 +111,7 @@ public class UserServlet extends HttpServlet {
 		resp.setContentType("text/html");
 		resp.setCharacterEncoding("UTF-8");
 
+		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
 		writer.append("<form action=\"user\" method=\"POST\">\r\n")
 		.append("<input type=\"hidden\" name=\"action\" value=\"add\"/>\r\n") // post variable action ="add"
@@ -120,7 +125,7 @@ public class UserServlet extends HttpServlet {
 		.append("</form>\r\n")
 		.append("</body>")
 		.append("</html>");		
-
+		this.addHtmlFooter(resp);
 	}
 
 	private void addUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -141,5 +146,24 @@ public class UserServlet extends HttpServlet {
 		this.usersDatabase.put(id, user);
 		}
 		resp.sendRedirect("user?action=view&userId=" + id);
+	}
+	
+	private void addHtmlHeader(HttpServletResponse resp) throws IOException {
+		PrintWriter writer = resp.getWriter();
+
+		writer.append("<!DOCTYPE html>\r\n")
+		.append("<html>\r\n")
+		.append("   <head>\r\n")
+		.append("      <title>Users database</title>\r\n")
+		.append("   </head>\r\n")
+		.append("   <body>\r\n");
+
+	}
+
+	private void addHtmlFooter(HttpServletResponse resp) throws IOException {
+		PrintWriter writer = resp.getWriter();
+
+		writer.append("   </body>\r\n")
+		.append("</html>\r\n");
 	}
 }
