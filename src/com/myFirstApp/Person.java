@@ -1,23 +1,17 @@
 package com.myFirstApp;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Person {
 	private String name;
-	private int age = 0;
 	private String username;
 	private LocalDate dob;
 	
 	public Person() {
 		
 	}
-	
-	public Person(String name, int age, String username) {
-		this.name = name;
-		this.age = age;
-		this.username = username;
-	}
-	
+		
 	public Person(String name, LocalDate dob, String username) {
 		this.name = name;
 		this.dob = dob;
@@ -32,17 +26,31 @@ public class Person {
 		this.name = name;
 	}
 
-	public int getAge() {
-	if (age == 0) {
-		return 0; // TODO calculate age from dob
-	} else
-		return age;
+	public String getAge() {
+		int years, months, days;
+			years = (int)ChronoUnit.YEARS.between(dob, LocalDate.now());
+			if (years > 0)
+				return years + " years";
+			else {
+				months = (int)ChronoUnit.MONTHS.between(dob, LocalDate.now());
+				if (months > 0)
+					return months + " months";
+				else {
+					days = (int)ChronoUnit.DAYS.between(dob, LocalDate.now());
+					return days + " days";
+				}
+			}
+	}	 
+		
+	public void setDOB(String dob) {
+		this.dob = LocalDate.parse(dob);
+		System.out.println(this.dob); // TODO delete it as only purpose is to check if dob is set
 	}
 	
-	public void setAge(int age) {
-		this.age = age;
+	public LocalDate getDOB() {
+		return this.dob;
 	}
-
+	
 	public String getUsername() {
 		return username;
 	}
