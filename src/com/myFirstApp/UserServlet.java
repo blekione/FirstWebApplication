@@ -96,8 +96,8 @@ public class UserServlet extends HttpServlet {
 		Person user = this.usersDatabase.get(Integer.parseInt(req.getParameter("userId")));
 		writer.append("<p>Hello ")
 		.append(user.getName()).append(". You are ")
-		.append(Integer.toString(user.getAge()))
-		.append(" years old and your user name is ")
+		.append(user.getAge())
+		.append(" old and your user name is ")
 		.append(user.getUsername())
 		.append(".</p>	");
 		
@@ -117,8 +117,8 @@ public class UserServlet extends HttpServlet {
 		.append("<input type=\"hidden\" name=\"action\" value=\"add\"/>\r\n") // post variable action ="add"
   		.append("Enter your name:<br/>\r\n")
 		.append("<input type=\"text\" name=\"name\" /><br/>\r\n")
-		.append("Enter your age:<br/>\r\n")
-		.append("<input type=\"text\" name=\"age\" /><br/>\r\n")
+		.append("Enter your date of birth (yyyy-mm-dd):<br/>\r\n")
+		.append("<input type=\"text\" name=\"dob\" /><br/>\r\n")
 		.append("Enter your username:<br/>\r\n")
 		.append("<input type=\"text\" name=\"username\" /><br/>\r\n")
 		.append("<input type=\"submit\" value=\"Submit\" /><br/>\r\n")
@@ -136,7 +136,8 @@ public class UserServlet extends HttpServlet {
 		System.out.println("in addUser");
 		Person user = new Person();
 		user.setName(req.getParameter("name"));
-		user.setAge(Integer.parseInt(req.getParameter("age")));
+		//user.setAge(Integer.parseInt(req.getParameter("age")));
+		user.setDOB(req.getParameter("dob"));
 		user.setUsername(req.getParameter("username"));
 		int id;
 		

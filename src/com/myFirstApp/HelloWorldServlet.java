@@ -46,9 +46,9 @@ public class HelloWorldServlet extends HttpServlet implements Subject {
 		updateUser(request);
 		notifyObservers();
 		writer.append("Hello ")
-		.append(user.getName()).append(". You are ")
-		.append(Integer.toString(user.getAge()))
-		.append(" years old and your user name is ")
+		.append(user.getName()).append(". You was born on ")
+		.append(user.getDOB().toString())
+		.append(" and your user name is ")
 		.append(user.getUsername())
 		.append(".");
 		
@@ -56,7 +56,7 @@ public class HelloWorldServlet extends HttpServlet implements Subject {
 
 	private void updateUser(HttpServletRequest request) {
 		user.setName(request.getParameter("name"));
-		user.setAge(Integer.parseInt(request.getParameter("age")));
+		user.setDOB(request.getParameter("dob"));
 		user.setUsername(request.getParameter("username"));
 	}
 
@@ -77,8 +77,8 @@ public class HelloWorldServlet extends HttpServlet implements Subject {
 		.append("<form action=\"myApp\" method=\"POST\">\r\n")
 		.append("Enter your name:<br/>\r\n")
 		.append("<input type=\"text\" name=\"name\" /><br/>\r\n")
-		.append("Enter your age:<br/>\r\n")
-		.append("<input type=\"text\" name=\"age\" /><br/>\r\n")
+		.append("Enter your date of birth (yyyy-mm-dd):<br/>\r\n")
+		.append("<input type=\"text\" name=\"dob\" /><br/>\r\n")
 		.append("Enter your username:<br/>\r\n")
 		.append("<input type=\"text\" name=\"username\" /><br/>\r\n")
 		.append("<input type=\"submit\" value=\"Submit\" /><br/>\r\n")

@@ -13,7 +13,7 @@ public class SaveToFile implements Observer {
 		System.out.println("inside SaveToFile object");
 		try(FileWriter fwriter = new FileWriter("test.txt")) {
 			fwriter.write(person.getName() + FIELD_SEPARATOR);
-			fwriter.write(Integer.toString(person.getAge())+ FIELD_SEPARATOR);
+			fwriter.write(person.getDOB()+ FIELD_SEPARATOR);
 			fwriter.write(person.getUsername() + FIELD_SEPARATOR);
 		} catch (IOException e) {
 			System.out.println("I/O Error: " + e);
