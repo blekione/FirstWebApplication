@@ -45,6 +45,7 @@ public class UserServlet extends HttpServlet {
 		default:
 			this.listUsers(resp);
 		}
+		this.tempUser = null;
 	}
 
 
@@ -64,8 +65,6 @@ public class UserServlet extends HttpServlet {
 		}
 	}
 
-
-	
 	private void listUsers(HttpServletResponse resp) throws IOException {
 		/** displays "home page" as list of users registered in system (from userDatabase).
 		 * If none user is existing then information about it is displayed 
@@ -137,22 +136,27 @@ public class UserServlet extends HttpServlet {
 	}
 
 	private CharSequence getHttpFormInputValue(String string) {
+		/** return form input value depends of information stored in tempUser
+		 * 
+		 */
 		CharSequence value = "";
-		if (string.equals("name"))
-			if (tempUser.getName() == null)
-				return value;
-			else 
-				return value + tempUser.getName(); 
-		if (string.equals("dob"))
-			if (tempUser.getDOB() == null)
-				return value;
-			else 
-				return value + tempUser.getDOB().toString(); 
-		if (string.equals("username"))
-			if (tempUser.getUsername() == null)
-				return value;
-			else 
-				return value + tempUser.getUsername(); 
+		if (tempUser != null) {
+			if (string.equals("name"))
+				if (tempUser.getName() == null)
+					return value;
+				else 
+					return value + tempUser.getName(); 
+			if (string.equals("dob"))
+				if (tempUser.getDOB() == null)
+					return value;
+				else 
+					return value + tempUser.getDOB().toString(); 
+			if (string.equals("username"))
+				if (tempUser.getUsername() == null)
+					return value;
+				else 
+					return value + tempUser.getUsername();
+		}
 		return value;
 	}
 
@@ -161,17 +165,17 @@ public class UserServlet extends HttpServlet {
 		 * 
 		 */
 		
-		tempUser = new Person();
-		tempUser.setName(req.getParameter("name"));
-		tempUser.setUsername(req.getParameter("username"));
+		this.tempUser = new Person();
+		this.tempUser.setName(req.getParameter("name"));
+		this.tempUser.setUsername(req.getParameter("username"));
 		try{
-			tempUser.setDOB(req.getParameter("dob"));
+			this.tempUser.setDOB(req.getParameter("dob"));
 			int id;
 
 			synchronized (this){
 				// gives access to resources for only 1 thread at a time
 				id = this.USER_ID_SEQUENCE++;	
-				this.usersDatabase.put(id, tempUser);
+				this.usersDatabase.put(id, this.tempUser);
 			}
 			resp.sendRedirect("user?action=view&userId=" + id);
 		} catch (DateTimeParseException e) {
