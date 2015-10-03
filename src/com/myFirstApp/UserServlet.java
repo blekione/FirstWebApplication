@@ -2,6 +2,7 @@ package com.myFirstApp;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,6 +23,8 @@ public class UserServlet extends HttpServlet {
 	
 	private volatile int USER_ID_SEQUENCE = 1;
 	private Map<Integer, Person> usersDatabase = new LinkedHashMap<>();// users database
+	private Person tempUser = new Person();
+	private String errorMsg;
 	
 	public UserServlet() {
 	}
@@ -88,11 +91,12 @@ public class UserServlet extends HttpServlet {
 	}
 
 	private void viewUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		/** displays user record
+		/** displays user record with specific ID
 		 *  
 		 */
 		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
+		//getting user ID number from request parameter
 		Person user = this.usersDatabase.get(Integer.parseInt(req.getParameter("userId")));
 		writer.append("<p>Hello ")
 		.append(user.getName()).append(". You are ")
@@ -113,19 +117,43 @@ public class UserServlet extends HttpServlet {
 
 		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
+		if (errorMsg != null) {
+			writer.append("<div class=\"alert alert-danger\" role=\"alert\">\r\n")
+			.append("   <p>").append(errorMsg).append("</p>\r\n")
+			.append("</div>\r\n");
+			errorMsg = null;
+		}
 		writer.append("<form action=\"user\" method=\"POST\">\r\n")
 		.append("<input type=\"hidden\" name=\"action\" value=\"add\"/>\r\n") // post variable action ="add"
   		.append("Enter your name:<br/>\r\n")
-		.append("<input type=\"text\" name=\"name\" /><br/>\r\n")
+		.append("<input type=\"text\" name=\"name\" value=\"").append(this.getHttpFormInputValue("name")).append("\"/><br/>\r\n")
 		.append("Enter your date of birth (yyyy-mm-dd):<br/>\r\n")
-		.append("<input type=\"text\" name=\"dob\" /><br/>\r\n")
+		.append("<input type=\"text\" name=\"dob\" value=\"").append(this.getHttpFormInputValue("dob")).append("\"/><br/>\r\n")
 		.append("Enter your username:<br/>\r\n")
-		.append("<input type=\"text\" name=\"username\" /><br/>\r\n")
+		.append("<input type=\"text\" name=\"username\" value=\"").append(this.getHttpFormInputValue("username")).append("\"/><br/>\r\n")
 		.append("<input type=\"submit\" value=\"Submit\" /><br/>\r\n")
-		.append("</form>\r\n")
-		.append("</body>")
-		.append("</html>");		
+		.append("</form>\r\n");
 		this.addHtmlFooter(resp);
+	}
+
+	private CharSequence getHttpFormInputValue(String string) {
+		CharSequence value = "";
+		if (string.equals("name"))
+			if (tempUser.getName() == null)
+				return value;
+			else 
+				return value + tempUser.getName(); 
+		if (string.equals("dob"))
+			if (tempUser.getDOB() == null)
+				return value;
+			else 
+				return value + tempUser.getDOB().toString(); 
+		if (string.equals("username"))
+			if (tempUser.getUsername() == null)
+				return value;
+			else 
+				return value + tempUser.getUsername(); 
+		return value;
 	}
 
 	private void addUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -133,22 +161,25 @@ public class UserServlet extends HttpServlet {
 		 * 
 		 */
 		
-		System.out.println("in addUser");
-		Person user = new Person();
-		user.setName(req.getParameter("name"));
-		//user.setAge(Integer.parseInt(req.getParameter("age")));
-		user.setDOB(req.getParameter("dob"));
-		user.setUsername(req.getParameter("username"));
-		int id;
-		
-		synchronized (this){
-		// gives access to resources for only 1 thread at a time
-			id = this.USER_ID_SEQUENCE++;	
-		this.usersDatabase.put(id, user);
+		tempUser = new Person();
+		tempUser.setName(req.getParameter("name"));
+		tempUser.setUsername(req.getParameter("username"));
+		try{
+			tempUser.setDOB(req.getParameter("dob"));
+			int id;
+
+			synchronized (this){
+				// gives access to resources for only 1 thread at a time
+				id = this.USER_ID_SEQUENCE++;	
+				this.usersDatabase.put(id, tempUser);
+			}
+			resp.sendRedirect("user?action=view&userId=" + id);
+		} catch (DateTimeParseException e) {
+			errorMsg = "Warning!! You enter date of birth with wrong format. Please try again.";
+			resp.sendRedirect("user?action=add");
 		}
-		resp.sendRedirect("user?action=view&userId=" + id);
 	}
-	
+
 	private void addHtmlHeader(HttpServletResponse resp) throws IOException {
 		PrintWriter writer = resp.getWriter();
 

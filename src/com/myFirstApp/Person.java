@@ -1,6 +1,7 @@
 package com.myFirstApp;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
 public class Person {
@@ -42,7 +43,7 @@ public class Person {
 			}
 	}	 
 		
-	public void setDOB(String dob) {
+	public void setDOB(String dob) throws DateTimeParseException {
 		this.dob = LocalDate.parse(dob);
 		System.out.println(this.dob); // TODO delete it as only purpose is to check if dob is set
 	}
