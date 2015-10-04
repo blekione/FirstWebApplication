@@ -3,7 +3,9 @@ package com.myFirstApp;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -19,14 +21,18 @@ import javax.servlet.http.HttpServletResponse;
 		loadOnStartup = 1
 		)
 
-public class UserServlet extends HttpServlet {
+public class UserServlet extends HttpServlet implements Subject {
 	
 	private volatile int USER_ID_SEQUENCE = 1;
 	private Map<Integer, Person> usersDatabase = new LinkedHashMap<>();// users database
 	private Person tempUser = new Person();
 	private String errorMsg;
+	private List<Observer> observers = new ArrayList<Observer>();
 	
 	public UserServlet() {
+		super();
+        SaveToFile saveToFile = new SaveToFile();
+		registerObserver(saveToFile);
 	}
 	
 	@Override
@@ -45,9 +51,9 @@ public class UserServlet extends HttpServlet {
 		default:
 			this.listUsers(resp);
 		}
-		this.tempUser = null;
+		// setting tempUser to null to avoid filling form with values when adding new user
+		this.tempUser = null;  
 	}
-
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -176,6 +182,7 @@ public class UserServlet extends HttpServlet {
 				// gives access to resources for only 1 thread at a time
 				id = this.USER_ID_SEQUENCE++;	
 				this.usersDatabase.put(id, this.tempUser);
+				notifyObservers();
 			}
 			resp.sendRedirect("user?action=view&userId=" + id);
 		} catch (DateTimeParseException e) {
@@ -201,5 +208,25 @@ public class UserServlet extends HttpServlet {
 
 		writer.append("   </body>\r\n")
 		.append("</html>\r\n");
+	}
+
+	@Override
+	public void registerObserver(Observer observer) {
+		observers.add(observer);
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		int index = observers.indexOf(observer);
+		if (index >= 0)
+			observers.remove(index);
+	}
+
+	@Override
+	public void notifyObservers() {
+		for (int i =  0; i < observers.size(); i++) {
+			Observer observer = (Observer) observers.get(i);
+			observer.update(this.usersDatabase);
+		}
 	}
 }

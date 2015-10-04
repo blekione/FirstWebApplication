@@ -1,6 +1,8 @@
 package com.myFirstApp;
 
+import java.util.Map;
+
 public interface Observer {
 
-	void update(Person person);
+	<T, K> void update(Map<T, K> listOfElements);
 }
