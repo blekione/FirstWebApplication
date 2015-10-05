@@ -12,11 +12,15 @@ public class SaveToFile implements Observer {
 	@Override
 	public <T, K> void update(Map<T, K> mapOfUsers) {
 		System.out.println("inside SaveToFile object");
-		Person person = (Person)mapOfUsers.get(1);
 		try(FileWriter fwriter = new FileWriter("test.txt")) {
-			fwriter.write(person.getName() + FIELD_SEPARATOR);
-			fwriter.write(person.getDOB()+ FIELD_SEPARATOR);
-			fwriter.write(person.getUsername() + FIELD_SEPARATOR);
+			for (int i = 1; i <= mapOfUsers.size(); i++) {
+				Person person = (Person)mapOfUsers.get(i);
+
+				fwriter.write(person.getName() + FIELD_SEPARATOR);
+				fwriter.write(person.getDOB()+ FIELD_SEPARATOR);
+				fwriter.write(person.getUsername() + FIELD_SEPARATOR);
+				fwriter.write("\n");
+			}
 		} catch (IOException e) {
 			System.out.println("I/O Error: " + e);
 		}

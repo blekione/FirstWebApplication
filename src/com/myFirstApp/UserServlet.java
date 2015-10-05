@@ -189,6 +189,7 @@ public class UserServlet extends HttpServlet implements Subject {
 			errorMsg = "Warning!! You enter date of birth with wrong format. Please try again.";
 			resp.sendRedirect("user?action=add");
 		}
+		this.notifyObservers();
 	}
 
 	private void addHtmlHeader(HttpServletResponse resp) throws IOException {
