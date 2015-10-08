@@ -28,6 +28,7 @@ public class UserServlet extends HttpServlet implements Subject {
 	private Person tempUser = new Person();
 	private String errorMsg;
 	private List<Observer> observers = new ArrayList<Observer>();
+	private int tempUserId;
 	
 	public UserServlet() {
 		super();
@@ -47,12 +48,15 @@ public class UserServlet extends HttpServlet implements Subject {
 		case "view":
 			this.viewUser(req,resp);
 			break;
+		case "addPicture":
+			this.showPictureForm(req, resp);
+			break;
 		case "list":
-		default:
+		default:  
 			this.listUsers(resp);
 		}
-		// setting tempUser to null to avoid filling form with values when adding new user
-		this.tempUser = null;  
+		this.tempUser = null;// to avoid filling form with old values when adding new user
+		  
 	}
 
 	@Override
@@ -101,13 +105,14 @@ public class UserServlet extends HttpServlet implements Subject {
 		 */
 		this.addHtmlHeader(resp);
 		PrintWriter writer = resp.getWriter();
-		//getting user ID number from request parameter
-		Person user = this.usersDatabase.get(Integer.parseInt(req.getParameter("userId")));
+		String stringUserId = req.getParameter("userId");
+		tempUserId = Integer.parseInt(stringUserId);// getting user ID number from request parameter
+		tempUser = this.usersDatabase.get(tempUserId);
 		writer.append("<p>Hello ")
-		.append(user.getName()).append(". You are ")
-		.append(user.getAge())
+		.append(tempUser.getName()).append(". You are ")
+		.append(tempUser.getAge())
 		.append(" old and your user name is ")
-		.append(user.getUsername())
+		.append(tempUser.getUsername())
 		.append(".</p>	");
 		
 		writer.append("<br/><a href=\"user\">Return to list of users</a>");
@@ -189,9 +194,9 @@ public class UserServlet extends HttpServlet implements Subject {
 			errorMsg = "Warning!! You enter date of birth with wrong format. Please try again.";
 			resp.sendRedirect("user?action=add");
 		}
-		this.notifyObservers();
+		//this.notifyObservers();
 	}
-
+	
 	private void addHtmlHeader(HttpServletResponse resp) throws IOException {
 		PrintWriter writer = resp.getWriter();
 
