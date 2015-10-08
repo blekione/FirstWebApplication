@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 		urlPatterns = "/user",
 		loadOnStartup = 1
 		)
-
+@MultipartConfig(
+        fileSizeThreshold = 5_242_880, //5MB
+        maxFileSize = 20_971_520L, //20MB
+        maxRequestSize = 41_943_040L //40MB
+)
 public class UserServlet extends HttpServlet implements Subject {
 	
 	private volatile int USER_ID_SEQUENCE = 1;
@@ -68,11 +73,19 @@ public class UserServlet extends HttpServlet implements Subject {
 		case "add":
 			this.addUser(req, resp);
 			break;
+		case "addPicture":
+			this.addPicture(req, resp);
+			break;
 		case "list":
 		default:
 			resp.sendRedirect("user");
 			break;
 		}
+	}
+
+	private void addPicture(HttpServletRequest req, HttpServletResponse resp) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void listUsers(HttpServletResponse resp) throws IOException {
@@ -115,6 +128,8 @@ public class UserServlet extends HttpServlet implements Subject {
 		.append(tempUser.getUsername())
 		.append(".</p>	");
 		
+		writer.append("<br/><a href=\"user?action=addPicture&userId=").append(stringUserId)
+		.append("\">Add Picture</a>");
 		writer.append("<br/><a href=\"user\">Return to list of users</a>");
 		this.addHtmlFooter(resp);
 	}
@@ -143,6 +158,24 @@ public class UserServlet extends HttpServlet implements Subject {
 		.append("<input type=\"text\" name=\"username\" value=\"").append(this.getHttpFormInputValue("username")).append("\"/><br/>\r\n")
 		.append("<input type=\"submit\" value=\"Submit\" /><br/>\r\n")
 		.append("</form>\r\n");
+		this.addHtmlFooter(resp);
+	}
+
+	private void showPictureForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		tempUserId = Integer.parseInt(req.getParameter("userId"));
+		PrintWriter writer = resp.getWriter();
+		this.addHtmlHeader(resp);
+		if (errorMsg != null) {
+			writer.append("<div class=\"alert alert-danger\" role=\"alert\">\r\n")
+			.append("   <p>").append(errorMsg).append("</p>\r\n")
+			.append("</div>\r\n");
+			errorMsg = null;
+		}
+		writer.append("<form action=\"user\" method=\"POST\" enctype=\"multipart/form-data\">\r\n")
+		.append("   <input type=\"hidden\" name=\"action\" value=\"addPicture\" />\r\n")
+		.append("   <input type=\"file\" name=\"file\" accept=\"image/*\">\r\n")
+		.append("   <input type=\"submit\" value=\"Submit\" >")
+		.append("</form>");
 		this.addHtmlFooter(resp);
 	}
 
