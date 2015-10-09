@@ -1,5 +1,7 @@
 package com.myFirstApp;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.format.DateTimeParseException;
@@ -8,12 +10,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+import org.apache.catalina.connector.Request;
+
+import com.sun.xml.internal.ws.api.message.Attachment;
 
 
 @WebServlet (
@@ -34,6 +42,7 @@ public class UserServlet extends HttpServlet implements Subject {
 	private String errorMsg;
 	private List<Observer> observers = new ArrayList<Observer>();
 	private int tempUserId;
+	private Picture picture;
 	
 	public UserServlet() {
 		super();
@@ -83,9 +92,21 @@ public class UserServlet extends HttpServlet implements Subject {
 		}
 	}
 
-	private void addPicture(HttpServletRequest req, HttpServletResponse resp) {
-		// TODO Auto-generated method stub
+	private void addPicture(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		
+		Part filePart = req.getPart("file");
+		if (filePart != null) {
+			picture = this.processAttachement(filePart);
+		}
+	}
+
+	private Picture processAttachement(Part filePart) throws IOException {
+		Picture tempPicture = new Picture();
+		tempPicture.img = ImageIO.read(filePart.getInputStream());
+		System.out.println(filePart.getSubmittedFileName() + " " + filePart.getContentType());
+		File outputfile = new File("saved.jpg");
+		ImageIO.write(tempPicture.img, "image/jpeg", outputfile);				
+		return null;
 	}
 
 	private void listUsers(HttpServletResponse resp) throws IOException {
